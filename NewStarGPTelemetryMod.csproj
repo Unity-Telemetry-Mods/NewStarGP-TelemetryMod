@@ -25,6 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove=".git" />
     <None Remove=".gitignore" />
     <None Remove="Directory.Build.targets" />
     <None Remove="objectinspector.png" />
@@ -47,5 +48,6 @@
     </Reference>
   </ItemGroup>
   
-  <Import Project="..\TelemetryLib\TelemetryLib.projitems" Label="Shared" />
+  
+  <Import Project="..\SharedLib\TelemetryLib.projitems" Label="Shared" />
 </Project>
