@@ -1,0 +1,51 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net46</TargetFramework>
+    <AssemblyName>NewStarGPTelemetryMod</AssemblyName>
+    <Product>Newstar Telemetry Plugin</Product>
+    <Version>0.0.1</Version>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>12.0</LangVersion>
+    <RestoreAdditionalProjectSources>
+      https://api.nuget.org/v3/index.json;
+      https://nuget.bepinex.dev/v3/index.json;
+      https://nuget.samboy.dev/v3/index.json
+    </RestoreAdditionalProjectSources>
+    <RootNamespace>com.drowhunter.NewStarGPTelemetryMod</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="com.drowhunter.sharedlib\**" />
+    <Compile Remove="lib\**" />
+    <EmbeddedResource Remove="com.drowhunter.sharedlib\**" />
+    <EmbeddedResource Remove="lib\**" />
+    <None Remove="com.drowhunter.sharedlib\**" />
+    <None Remove="lib\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove=".gitignore" />
+    <None Remove="Directory.Build.targets" />
+    <None Remove="objectinspector.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
+    <PackageReference Include="BepInEx.Core" Version="5.*" />
+    <PackageReference Include="BepInEx.PluginInfoProps" Version="2.*" />
+    <PackageReference Include="UnityEngine.Modules" Version="2021.3.28" IncludeAssets="compile" />
+  </ItemGroup>
+  
+  <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" PrivateAssets="all" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>lib\Assembly-CSharp_publicized.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  
+  <Import Project="..\TelemetryLib\TelemetryLib.projitems" Label="Shared" />
+</Project>
