@@ -1,6 +1,6 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
-		<ModId>13244593144621035959</ModId>
+		<ModId>6001643931841748123</ModId>
 		<GameDir>$(APPDATA)\raicuparta\rai-pal\data\installed-mods\$(ModId)\</GameDir>		
     </PropertyGroup>
      

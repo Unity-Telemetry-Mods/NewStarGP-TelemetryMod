@@ -11,6 +11,11 @@ using TelemetryLib.Telemetry;
 using TelemetryLib;
 
 using UnityEngine;
+using System.Collections.Generic;
+using System.Linq;
+using HarmonyLib;
+using UnityEngine.UIElements;
+using BepInEx.Configuration;
 
 namespace com.drowhunter.NewStarGPTelemetryMod
 {
@@ -31,13 +36,14 @@ namespace com.drowhunter.NewStarGPTelemetryMod
 
         RacingContextManager _racingContextManager;
 
+        private ConfigEntry<float> configAccelSmoothing;
 
         CarControl _carControl
         {
             get
             {
-                if (!_racingContextManager) 
-                { 
+                if (!_racingContextManager)
+                {
                     _racingContextManager = RacingContextManager.inst;
                 }
 
@@ -45,18 +51,36 @@ namespace com.drowhunter.NewStarGPTelemetryMod
             }
         }
 
+        static bool paused = false;
 
+
+        //[HarmonyPatch(typeof(PauseMenu), nameof(PauseMenu.Update))]
+        //class Patch
+        //{
+        //    static void Postfix(PauseMenu __instance)
+        //    {
+        //        paused = __instance.paused;
+
+                
+
+        //    }
+        //}
 
 
         private void Awake()
         {
+            //Harmony.CreateAndPatchAll(typeof(NewStarTelemetryPlugin));
+            //var harmony = new Harmony("com.drowhunter.NewStarTelemetryPlugin");
+            //harmony.PatchAll();
 
 
             // Plugin startup logic
             Logger = base.Logger;
-            Logger.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
+            
 
-            //gameManager = NSGP.GameManager.inst;
+
+            configAccelSmoothing = Config.Bind("Telemetry", "AccelSmoothing", 0.1f, "Smoothing factor for AccelZ");
+
 
 
             _udp = new UdpTelemetry<NewStarTelemetryData>(new UdpTelemetryConfig
@@ -64,60 +88,77 @@ namespace com.drowhunter.NewStarGPTelemetryMod
                 SendAddress = new IPEndPoint(IPAddress.Loopback, 12345)
             });
 
+            Logger.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
         }
+
+        
 
         private void Start()
         {
             telemetryExtractor = new TelemetryExtractor();
         }
 
-        private GameObject fl, fr, rl, rr, chassis;
         
-        void GetWheels()
+
+        
+        private Delta[] deltas = Enumerable.Range(0, 4).Select(_ => new Delta()).ToArray();
+
+        enum wheel { rr, fr, rl, fl };
+        void GetWheels(Vehicle vehicle)
         {
-            if(fl != null && fr != null)
+            var localwheels = vehicle.wheels.Select(w => w.transform.position.y).ToArray();
+
+            var avg = localwheels.Average();
+            for (var i = 0; i < localwheels.Length; i++)
             {
-                return;
+                deltas[i].Update(localwheels[i] - avg);                
             }
-
-            fl = GameObject.Find("RacingContexts/SinglePlayerRacingContext/PlayerCarTemplate/Wheels/frontleft");
-            fr = GameObject.Find("RacingContexts/SinglePlayerRacingContext/PlayerCarTemplate/Wheels/frontright");
-            rl = GameObject.Find("RacingContexts/SinglePlayerRacingContext/PlayerCarTemplate/Wheels/rearleft");
-            rr = GameObject.Find("RacingContexts/SinglePlayerRacingContext/PlayerCarTemplate/Wheels/rearright");
-            chassis = GameObject.Find("RacingContexts/SinglePlayerRacingContext/PlayerCarTemplate/Car_chasis/Car_FrontWing");
-
-            Logger.LogInfo($"Found Wheels: {fl?.name ?? "nope"} {fr?.name ?? "nope"}");
         }
+
+        
+        
+        
+
         private void FixedUpdate()
         {
-            if (_carControl == null)
+            bool doTelemetry = true;
+
+            if (!_carControl)
             {
                 return;
             }
-            
+            var isRacing = TWK.RaceState == "Racing";
+            var isRaceOver = TWK.ChallengeEventOver == 1;
 
             var vehicle = _carControl.vehicle;
+            var allowDriving = vehicle.allowDriving;
+            
 
-            var gearbox = _carControl.vehicle.gearbox;
+            doTelemetry = (allowDriving && !isRaceOver && isRacing);
 
-            var cRigidbody = vehicle.rigid;// _carControl.rb;
+            if(!doTelemetry)
+            {
+                return;
+            }
+
+            var data = new NewStarTelemetryData();
+
+
+            var cRigidbody = vehicle.rigid;
             telemetryExtractor.Update(cRigidbody);
 
-            if (cRigidbody == null)
+            if (!cRigidbody)
             {
                 Logger.LogInfo("Rigidbody is null");
                 return;
             }
-            //_carControl.GetAcceleration();
-            
-            
 
             var basic = telemetryExtractor.ExtractTelemetry();
-            GetWheels();
 
-            var data = new NewStarTelemetryData
+            GetWheels(vehicle);
+            
+            data = new NewStarTelemetryData
             {
-                //Orientation = basic.Rotation,
                 Pitch = basic.EulerAngles.x,
                 Yaw = basic.EulerAngles.y,
                 Roll = basic.EulerAngles.z,
@@ -131,69 +172,43 @@ namespace com.drowhunter.NewStarGPTelemetryMod
                 AccelX = basic.Accel.x,
                 AccelY = basic.Accel.y,
                 AccelZ = basic.Accel.z,
+                
                 Speed = vehicle.speed,
-                RPM = vehicle.engine.maxRPM != 0 ? vehicle.engine.RPM / vehicle.engine.maxRPM: 0,
-                CurrentGear = gearbox.targetGear,
-                WheelsOnTrack = vehicle.wheelsOnTrack,
-                Boosting = vehicle.slipstream.boosting,
-                TireFL = fl.transform.position.y,
-                TireFR = fr.transform.position.y,
-                TireBL = rl.transform.position.y,
-                TireBR = rr.transform.position.y
+                RPM = vehicle.engine.maxRPM != 0 ? vehicle.engine.RPM / vehicle.engine.maxRPM : 0,
+                CurrentGear = _carControl.vehicle.gearbox.targetGear,
 
+                TireFL = deltas[(int)wheel.fl] / Time.fixedDeltaTime,
+                TireFR = deltas[(int)wheel.fr] / Time.fixedDeltaTime,
+                TireBL = deltas[(int)wheel.rl] / Time.fixedDeltaTime,
+                TireBR = deltas[(int)wheel.rr] / Time.fixedDeltaTime,
+               
+
+                WheelsOnTrack = vehicle.wheelsOnTrack,
+                IsBoosting = vehicle.slipstream.boosting,
+                AllowDriving = allowDriving,
+                IsRacing = isRacing,
+                IsEventOver = isRaceOver,
 
             };
-
+            
             _udp.Send(data);
 
         }
     }
 
-    [StructLayout(LayoutKind.Sequential)]
-    public struct NewStarTelemetryData
+    public class Delta : MonoBehaviour
     {
-        //public Quaternion Orientation;
+        private float _lastValue;
 
-        public float Pitch;
-        public float Yaw;
-        public float Roll;
+        public float Value { get; private set; }
 
-        public float AngularVelocityX;
-        public float AngularVelocityY;
-        public float AngularVelocityZ;
+        public float Update(float currentValue)
+        {
+            Value = currentValue - _lastValue;
+            _lastValue = currentValue;
+            return Value;
+        }
 
-        public float cForce;
-
-        public float VelocityX;
-        public float VelocityY;
-        public float VelocityZ;
-
-        public float AccelX;
-        public float AccelY;
-        public float AccelZ;
-
-        /// <summary>
-        /// Speed in Meter per Second
-        /// </summary>
-        public float Speed;
-       
-        public float RPM;
-        
-        public int CurrentGear;
-        public int WheelsOnTrack;
-        public bool Boosting;
-        public float TireFL;
-        public float TireFR;
-        public float TireBL;
-        public float TireBR;
-        //public bool GamePaused;
-        //public bool IsRacing;
-        //public bool Boost;
-
-
-
-
+        public static implicit operator float(Delta d) => d.Value;
     }
-
-
 }

@@ -15,20 +15,17 @@
     <RootNamespace>com.drowhunter.NewStarGPTelemetryMod</RootNamespace>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="com.drowhunter.sharedlib\**" />
-    <Compile Remove="lib\**" />
-    <EmbeddedResource Remove="com.drowhunter.sharedlib\**" />
-    <EmbeddedResource Remove="lib\**" />
-    <None Remove="com.drowhunter.sharedlib\**" />
+  <ItemGroup>    
+    <Compile Remove="lib\**" />   
+    <EmbeddedResource Remove="lib\**" />    
     <None Remove="lib\**" />
   </ItemGroup>
 
   <ItemGroup>
     <None Remove=".git" />
     <None Remove=".gitignore" />
-    <None Remove="Directory.Build.targets" />
     <None Remove="objectinspector.png" />
+    <None Remove="README.md" />
   </ItemGroup>
 
   <ItemGroup>
@@ -45,6 +42,9 @@
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
       <HintPath>lib\Assembly-CSharp_publicized.dll</HintPath>
+    </Reference>
+    <Reference Include="netstandard">
+      <HintPath>lib\netstandard.dll</HintPath>
     </Reference>
   </ItemGroup>
   
