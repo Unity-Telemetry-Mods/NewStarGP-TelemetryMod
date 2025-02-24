@@ -1,21 +1,14 @@
 ﻿using BepInEx;
+using BepInEx.Configuration;
 using BepInEx.Logging;
 
-using NSGP;
-
+using System.Linq;
 using System.Net;
-using System.Runtime.InteropServices;
-
-using TelemetryLib.Telemetry;
 
 using TelemetryLib;
+using TelemetryLib.Telemetry;
 
 using UnityEngine;
-using System.Collections.Generic;
-using System.Linq;
-using HarmonyLib;
-using UnityEngine.UIElements;
-using BepInEx.Configuration;
 
 namespace com.drowhunter.NewStarGPTelemetryMod
 {
@@ -134,7 +127,7 @@ namespace com.drowhunter.NewStarGPTelemetryMod
             var allowDriving = vehicle.allowDriving;
             
 
-            doTelemetry = (allowDriving && !isRaceOver && isRacing);
+            doTelemetry = (allowDriving && !isRaceOver);
 
             if(!doTelemetry)
             {
