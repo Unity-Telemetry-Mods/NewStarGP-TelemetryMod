@@ -5,8 +5,6 @@ namespace com.drowhunter.NewStarGPTelemetryMod
     [StructLayout(LayoutKind.Sequential)]
     internal struct NewStarTelemetryData
     {
-        //public Quaternion Orientation;
-
         public float Pitch;
         public float Yaw;
         public float Roll;
@@ -29,7 +27,9 @@ namespace com.drowhunter.NewStarGPTelemetryMod
         /// Speed in Meter per Second
         /// </summary>
         public float Speed;       
+        
         public float RPM;        
+        
         public int CurrentGear;
         
         public float TireFL;
@@ -43,16 +43,6 @@ namespace com.drowhunter.NewStarGPTelemetryMod
         internal bool AllowDriving;
         internal bool IsRacing;
         internal bool IsEventOver;
-
-        //public float WheelFL;
-        //public float WheelFR;
-        //public float WheelBL;
-        //public float WheelBR;
-        //public bool GamePaused;
-        //public bool IsRacing;
-        //public bool Boost;
-
-
 
 
     }

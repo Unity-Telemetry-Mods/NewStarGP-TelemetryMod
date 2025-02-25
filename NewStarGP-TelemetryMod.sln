@@ -1,0 +1,30 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NewStarGPTelemetryMod", "NewStarGPTelemetryMod.csproj", "{2664687F-2C11-F749-66EE-0BBB49ACC5CA}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "TelemetryLib", "..\SharedLib\TelemetryLib.shproj", "{EEB444E9-0B1F-467D-B01C-EDBA291BC941}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2664687F-2C11-F749-66EE-0BBB49ACC5CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2664687F-2C11-F749-66EE-0BBB49ACC5CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2664687F-2C11-F749-66EE-0BBB49ACC5CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2664687F-2C11-F749-66EE-0BBB49ACC5CA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7F34D497-F08F-4A60-9C44-422F889D372B}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		..\SharedLib\TelemetryLib.projitems*{2664687f-2c11-f749-66ee-0bbb49acc5ca}*SharedItemsImports = 5
+		..\SharedLib\TelemetryLib.projitems*{eeb444e9-0b1f-467d-b01c-edba291bc941}*SharedItemsImports = 13
+	EndGlobalSection
+EndGlobal

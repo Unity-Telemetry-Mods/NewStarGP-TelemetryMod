@@ -4,9 +4,9 @@
     <TargetFramework>net46</TargetFramework>
     <AssemblyName>NewStarGPTelemetryMod</AssemblyName>
     <Product>Newstar Telemetry Plugin</Product>
-    <Version>0.0.1</Version>
+    <Version>1.0.0</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <LangVersion>12.0</LangVersion>
+    <LangVersion>latest</LangVersion>
     <RestoreAdditionalProjectSources>
       https://api.nuget.org/v3/index.json;
       https://nuget.bepinex.dev/v3/index.json;
