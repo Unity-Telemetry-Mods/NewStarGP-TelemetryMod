@@ -29,7 +29,7 @@ namespace com.drowhunter.NewStarGPTelemetryMod
 
         RacingContextManager _racingContextManager;
 
-        private ConfigEntry<float> configAccelSmoothing;
+        private ConfigEntry<int> Port;
 
         CarControl _carControl
         {
@@ -69,16 +69,13 @@ namespace com.drowhunter.NewStarGPTelemetryMod
 
             // Plugin startup logic
             Logger = base.Logger;
-            
 
 
-            configAccelSmoothing = Config.Bind("Telemetry", "AccelSmoothing", 0.1f, "Smoothing factor for AccelZ");
-
-
+            Port = Config.Bind("Telemetry", "UDP Port", 12345, "Port to Send Telemetry");
 
             _udp = new UdpTelemetry<NewStarTelemetryData>(new UdpTelemetryConfig
             {
-                SendAddress = new IPEndPoint(IPAddress.Loopback, 12345)
+                SendAddress = new IPEndPoint(IPAddress.Loopback, Port.Value)
             });
 
             Logger.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
