@@ -4,7 +4,7 @@
     <TargetFramework>net46</TargetFramework>
     <AssemblyName>NewStarGPTelemetryMod</AssemblyName>
     <Product>Newstar Telemetry Plugin</Product>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
     <RestoreAdditionalProjectSources>
@@ -25,7 +25,6 @@
     <None Remove=".git" />
     <None Remove=".gitignore" />
     <None Remove="objectinspector.png" />
-    <None Remove="README.md" />
   </ItemGroup>
 
   <ItemGroup>

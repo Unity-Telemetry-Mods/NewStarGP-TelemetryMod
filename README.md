@@ -46,3 +46,4 @@
 ## Changelog
 
 v 1.0 First Release
+v 1.0.2 Updated for new game version as of 2026-06-18

@@ -1,14 +1,11 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
-		<ModId>6001643931841748123</ModId>
+		<ModId>8148729079362356270</ModId>
 		<GameDir>$(APPDATA)\raicuparta\rai-pal\data\installed-mods\$(ModId)\</GameDir>		
-    </PropertyGroup>
-     
+    </PropertyGroup>     
     <Target Name="CreateAndCopyToGameDir" AfterTargets="Build">
         <MakeDir Directories="$(GameDir)BepInEx\plugins\$(TargetName)" Condition="!Exists('$(GameDir)BepInEx\plugins\$(TargetName)')" />
         <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(GameDir)BepInEx\plugins\$(TargetName)" />
         <Message Text="[$(ProjectName)] Copied $(TargetName).dll to $(GameDir)BepInEx\plugins\$(TargetName)" Importance="High" />
     </Target>
-    
-	
 </Project>
