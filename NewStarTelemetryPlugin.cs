@@ -1,12 +1,11 @@
 ﻿using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
-
+using com.drowhunter.TelemetryLib;
 using System.Linq;
 using System.Net;
 
 using TelemetryLib;
-using TelemetryLib.Telemetry;
 
 using UnityEngine;
 
@@ -76,7 +75,7 @@ namespace com.drowhunter.NewStarGPTelemetryMod
             _udp = new UdpTelemetry<NewStarTelemetryData>(new UdpTelemetryConfig
             {
                 SendAddress = new IPEndPoint(IPAddress.Loopback, Port.Value)
-            });
+            }, new MarshalByteConverter<NewStarTelemetryData>());
 
             Logger.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
         }

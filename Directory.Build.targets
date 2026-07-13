@@ -1,12 +1,25 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <PropertyGroup>
+	<PropertyGroup>
 		<!--<GameDir>$(APPDATA)\raicuparta\rai-pal\data\installed-mods\8148729079362356270\bepinex\BepInEx\plugins\</GameDir>-->
 		<GameDir>Y:\SteamLibrary\steamapps\common\New Star GP\release\BepInEx\plugins\</GameDir>		
-    </PropertyGroup>     
-    <Target Name="CreateAndCopyToGameDir" AfterTargets="Build">
-        <MakeDir Directories="$(GameDir)$(TargetName)" Condition="!Exists('$(GameDir)$(TargetName)')" />
-        <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(GameDir)$(TargetName)" />
-        <Copy SourceFiles="$(TargetDir)$(TargetName).pdb" DestinationFolder="$(GameDir)$(TargetName)" Condition="Exists('$(TargetDir)$(TargetName).pdb')" />
-        <Message Text="[$(ProjectName)] Copied $(TargetName).dll and $(TargetDir)$(TargetName).pdb  to $(GameDir)$(TargetName)" Importance="High" />
-    </Target>
+	</PropertyGroup>
+
+	<Target Name="CreateAndCopyToGameDir" AfterTargets="Build">
+		<PropertyGroup>
+			<GamePluginDir>$(GameDir)$(TargetName)</GamePluginDir>
+		</PropertyGroup>
+
+		<ItemGroup>
+			<FilesToCopy Include="$(TargetPath)" />
+			<FilesToCopy Include="$(TargetDir)TelemetryLib.dll" Condition="Exists('$(TargetDir)TelemetryLib.dll')" />
+			<FilesToCopy Include="$(TargetDir)$(TargetName).pdb" Condition="'$(Configuration)' == 'Debug' and Exists('$(TargetDir)$(TargetName).pdb')" />
+			<FilesToCopy Include="$(TargetDir)TelemetryLib.pdb" Condition="'$(Configuration)' == 'Debug' and Exists('$(TargetDir)TelemetryLib.pdb')" />
+			<PdbFilesToDelete Include="$(GamePluginDir)\*.pdb" Condition="'$(Configuration)' == 'Release'" />
+		</ItemGroup>
+
+		<MakeDir Directories="$(GamePluginDir)" Condition="!Exists('$(GamePluginDir)')" />
+		<Delete Files="@(PdbFilesToDelete)" Condition="'$(Configuration)' == 'Release'" />
+		<Copy SourceFiles="@(FilesToCopy)" DestinationFolder="$(GamePluginDir)" />
+		<Message Text="[$(ProjectName)] Copied @(FilesToCopy, ', ') to $(GamePluginDir)" Importance="High" />
+	</Target>
 </Project>

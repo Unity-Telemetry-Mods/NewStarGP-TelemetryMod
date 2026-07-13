@@ -39,6 +39,10 @@
   </ItemGroup>
   
   <ItemGroup>
+    <ProjectReference Include="..\telemetry-lib\TelemetryLib.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
     <Reference Include="Assembly-CSharp">
       <HintPath>lib\Assembly-CSharp_publicized.dll</HintPath>
     </Reference>
@@ -48,5 +52,8 @@
   </ItemGroup>
   
   
-  <Import Project="..\SharedLib\TelemetryLib.projitems" Label="Shared" />
+ 
+  
+  
+  <Import Project="..\SharedLib\SharedLib.projitems" Label="Shared" />
 </Project>
