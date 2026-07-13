@@ -1,11 +1,12 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
-		<ModId>8148729079362356270</ModId>
-		<GameDir>$(APPDATA)\raicuparta\rai-pal\data\installed-mods\$(ModId)\</GameDir>		
+		<!--<GameDir>$(APPDATA)\raicuparta\rai-pal\data\installed-mods\8148729079362356270\bepinex\BepInEx\plugins\</GameDir>-->
+		<GameDir>Y:\SteamLibrary\steamapps\common\New Star GP\release\BepInEx\plugins\</GameDir>		
     </PropertyGroup>     
     <Target Name="CreateAndCopyToGameDir" AfterTargets="Build">
-        <MakeDir Directories="$(GameDir)BepInEx\plugins\$(TargetName)" Condition="!Exists('$(GameDir)BepInEx\plugins\$(TargetName)')" />
-        <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(GameDir)BepInEx\plugins\$(TargetName)" />
-        <Message Text="[$(ProjectName)] Copied $(TargetName).dll to $(GameDir)BepInEx\plugins\$(TargetName)" Importance="High" />
+        <MakeDir Directories="$(GameDir)$(TargetName)" Condition="!Exists('$(GameDir)$(TargetName)')" />
+        <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(GameDir)$(TargetName)" />
+        <Copy SourceFiles="$(TargetDir)$(TargetName).pdb" DestinationFolder="$(GameDir)$(TargetName)" Condition="Exists('$(TargetDir)$(TargetName).pdb')" />
+        <Message Text="[$(ProjectName)] Copied $(TargetName).dll and $(TargetDir)$(TargetName).pdb  to $(GameDir)$(TargetName)" Importance="High" />
     </Target>
 </Project>
