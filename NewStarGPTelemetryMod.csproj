@@ -47,11 +47,12 @@
   
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
-      <HintPath>libs\Assembly-CSharp.dll</HintPath>
+      <HintPath Condition="Exists('libs\Assembly-CSharp-publicized.dll')">libs\Assembly-CSharp-publicized.dll</HintPath>
+	  <HintPath Condition="!Exists('libs\Assembly-CSharp-publicized.dll')">libs\Assembly-CSharp.dll</HintPath>
     </Reference>
-    <Reference Include="netstandard">
+    <!--<Reference Include="netstandard">
       <HintPath>lib\netstandard.dll</HintPath>
-    </Reference>
+    </Reference>-->
   </ItemGroup>
   
   
