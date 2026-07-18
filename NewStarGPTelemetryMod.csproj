@@ -16,8 +16,11 @@
   </PropertyGroup>
 
   <ItemGroup>    
-    <Compile Remove="lib\**" />   
-    <EmbeddedResource Remove="lib\**" />    
+    <Compile Remove="libs\**" />    
+    <Compile Remove="lib\**" />    
+    <EmbeddedResource Remove="libs\**" />   
+    <EmbeddedResource Remove="lib\**" />   
+    <None Remove="libs\**" />    
     <None Remove="lib\**" />
   </ItemGroup>
 
@@ -44,7 +47,7 @@
   
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
-      <HintPath>lib\Assembly-CSharp_publicized.dll</HintPath>
+      <HintPath>libs\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="netstandard">
       <HintPath>lib\netstandard.dll</HintPath>
