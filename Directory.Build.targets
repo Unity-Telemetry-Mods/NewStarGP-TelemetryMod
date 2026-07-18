@@ -4,7 +4,7 @@
 		<GameDir>Y:\SteamLibrary\steamapps\common\New Star GP\release\BepInEx\plugins\</GameDir>		
 	</PropertyGroup>
 
-	<Target Name="CreateAndCopyToGameDir" AfterTargets="Build">
+	<Target Name="CreateAndCopyToGameDir" AfterTargets="Build" Condition="Exists('$(GameDir)')">
 		<PropertyGroup>
 			<GamePluginDir>$(GameDir)$(TargetName)</GamePluginDir>
 		</PropertyGroup>
@@ -22,4 +22,7 @@
 		<Copy SourceFiles="@(FilesToCopy)" DestinationFolder="$(GamePluginDir)" />
 		<Message Text="[$(ProjectName)] Copied @(FilesToCopy, ', ') to $(GamePluginDir)" Importance="High" />
 	</Target>
+	<Target Name="WarnGameDirNotFound" AfterTargets="Build" Condition="!Exists('$(GameDir)')">
+      <Message Text="[$(ProjectName)] GameDir not found. Looked for: $(GameDir)" Importance="High" />
+    </Target>
 </Project>

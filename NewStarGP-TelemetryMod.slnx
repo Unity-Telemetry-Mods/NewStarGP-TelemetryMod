@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="../SharedLib/SharedLib.shproj" />
+  <Project Path="../telemetry-lib/TelemetryLib.csproj" />
+  <Project Path="NewStarGPTelemetryMod.csproj" />
+</Solution>

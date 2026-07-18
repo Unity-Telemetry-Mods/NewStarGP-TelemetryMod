@@ -401,3 +401,4 @@ FodyWeavers.xsd
 *.sln.iml
 *.bak
 /lib
+/.vscode
