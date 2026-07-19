@@ -26,7 +26,7 @@ namespace com.drowhunter.NewStarGPTelemetryMod
 
         internal NewStarTelemetryData data;
 
-        MmfTelemetry<NewStarTelemetryData> _dataOut;
+        UdpTelemetry<NewStarTelemetryData> _dataOut;
 
         RacingContextManager _racingContextManager;
 
@@ -77,7 +77,9 @@ namespace com.drowhunter.NewStarGPTelemetryMod
             // Plugin startup logic
             Logger = base.Logger;
 
-            // Point the Windows loader at the x64 subfolder so it can find the
+
+
+            // Point the Windows loader
             // Moza native DLLs (MOZA_SDK.dll, MOZA_API_C.dll) when
             // MOZA_API_CSharp.dll fires its first P/Invoke.
             // Managed DLLs are handled by BepInEx's AssemblyResolve hook instead.
@@ -93,15 +95,11 @@ namespace com.drowhunter.NewStarGPTelemetryMod
             }
 
 
-            //Port = Config.Bind("Telemetry", "UDP Port", 12345, "Port to Send Telemetry");
+            Port = Config.Bind("Telemetry", "UDP Port", 12345, "Port to send telemetry data on.");
 
-            _dataOut = new MmfTelemetry<NewStarTelemetryData>(new MmfTelemetryConfig
+            _dataOut = new UdpTelemetry<NewStarTelemetryData>(new UdpTelemetryConfig
             {
-                Name = "DrowTelemetryData",
-                IsGlobal = true,
-                Create = true,
-
-                // SendAddress = new IPEndPoint(IPAddress.Loopback, Port.Value)
+                SendAddress = new IPEndPoint(IPAddress.Loopback, Port.Value)
             }, new MarshalByteConverter<NewStarTelemetryData>());
 
 
