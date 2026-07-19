@@ -24,7 +24,7 @@ namespace com.drowhunter.NewStarGPTelemetryMod
 
         internal NewStarTelemetryData data;
 
-        UdpTelemetry<NewStarTelemetryData> _udp;
+        MmfTelemetry<NewStarTelemetryData> _dataOut;
 
         RacingContextManager _racingContextManager;
 
@@ -73,12 +73,18 @@ namespace com.drowhunter.NewStarGPTelemetryMod
             Logger = base.Logger;
 
 
-            Port = Config.Bind("Telemetry", "UDP Port", 12345, "Port to Send Telemetry");
+            //Port = Config.Bind("Telemetry", "UDP Port", 12345, "Port to Send Telemetry");
 
-            _udp = new UdpTelemetry<NewStarTelemetryData>(new UdpTelemetryConfig
+            _dataOut = new MmfTelemetry<NewStarTelemetryData>(new MmfTelemetryConfig
             {
-                SendAddress = new IPEndPoint(IPAddress.Loopback, Port.Value)
+                Name = "DrowTelemetryData",
+                IsGlobal = true,
+                Create = true,
+
+                // SendAddress = new IPEndPoint(IPAddress.Loopback, Port.Value)
             }, new MarshalByteConverter<NewStarTelemetryData>());
+
+
 
             Logger.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
 
@@ -190,7 +196,7 @@ namespace com.drowhunter.NewStarGPTelemetryMod
 
             };
             
-            _udp.Send(data);
+            _dataOut.Send(data);
 
             _wheelRuntime?.Update(in data);
 

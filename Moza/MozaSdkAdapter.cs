@@ -58,12 +58,13 @@ namespace com.drowhunter.NewStarGPTelemetryMod
         /// Poll the global HID data from all connected MOZA devices.
         /// Returns null if the SDK is not initialised or an error occurs.
         /// </summary>
-        public HIDData GetHIDData()
+        public HIDData? GetHIDData()
         {
             if (!_initialised) return null;
             try
             {
-                var data = mozaAPI.mozaAPI.getHIDData(out ERRORCODE err);
+                ERRORCODE err = ERRORCODE.NORMAL;
+                var data = mozaAPI.mozaAPI.getHIDData(ref err);
                 if (err != ERRORCODE.NORMAL)
                 {
                     _log.LogDebug($"[MozaSdkAdapter] getHIDData error: {err}");
@@ -86,7 +87,8 @@ namespace com.drowhunter.NewStarGPTelemetryMod
             if (!_initialised) return null;
             try
             {
-                var effect = mozaAPI.mozaAPI.createWheelbaseETDamper(hwnd, out ERRORCODE err);
+                ERRORCODE err = ERRORCODE.NORMAL;
+                var effect = mozaAPI.mozaAPI.createWheelbaseETDamper(hwnd, ref err);
                 if (err != ERRORCODE.NORMAL)
                 {
                     _log.LogWarning($"[MozaSdkAdapter] createWheelbaseETDamper error: {err}");
@@ -111,7 +113,8 @@ namespace com.drowhunter.NewStarGPTelemetryMod
             if (!_initialised) return null;
             try
             {
-                var effect = mozaAPI.mozaAPI.createWheelbaseETConstantForce(hwnd, out ERRORCODE err);
+                ERRORCODE err = ERRORCODE.NORMAL;
+                var effect = mozaAPI.mozaAPI.createWheelbaseETConstantForce(hwnd, ref err);
                 if (err != ERRORCODE.NORMAL)
                 {
                     _log.LogWarning($"[MozaSdkAdapter] createWheelbaseETConstantForce error: {err}");

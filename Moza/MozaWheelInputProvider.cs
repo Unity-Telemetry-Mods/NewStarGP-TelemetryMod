@@ -43,10 +43,12 @@ namespace com.drowhunter.NewStarGPTelemetryMod
 
         public WheelInputState Poll()
         {
-            var raw = _sdk.GetHIDData();
-            if (raw == null)
+            HIDData? result = _sdk.GetHIDData();
+
+            if (result == null)
                 return default;
 
+            var raw = result.Value;
             float steerNorm = NormaliseSteer(raw.fSteeringWheelAngle);
             steerNorm = ApplyDeadzoneSaturation(steerNorm,
                 _cfg.SteerDeadzone.Value,
