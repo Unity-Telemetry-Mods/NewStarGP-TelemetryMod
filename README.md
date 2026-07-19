@@ -48,3 +48,49 @@
 v 1.0 First Release
 v 1.0.2 Updated for new game version as of 2026-06-18
 v 1.0.3 Minor update . Refactor to use com.dowhunter.TelemetryLib
+
+---
+
+## Wheel / Force Feedback Integration
+
+### Requirements
+
+- **MOZA wheel hardware** (Moza-first implementation)
+- **MOZA Pithouz** software running in the background (connects the SDK to the wheel)
+- **ViGEm Bus Driver** installed — [download here](https://github.com/nefarius/ViGEmBus/releases)
+
+### Native DLL Setup
+
+The MOZA C++ native DLLs must be on the Windows DLL search path at game launch.
+Copy both files from `libs/moza/x64/` into the **game root directory**
+(the folder that contains `NewStarGP.exe`):
+
+```
+New Star GP\
+  NewStarGP.exe
+  MOZA_API_C.dll      ← copy from libs/moza/x64/
+  MOZA_SDK.dll        ← copy from libs/moza/x64/
+```
+
+The managed C# wrapper (`MOZA_API_CSharp.dll`) is copied automatically alongside the plugin DLL into `BepInEx/plugins/NewStarGPTelemetryMod/` during build.
+
+### Config
+
+All wheel / FFB settings are in `BepInEx/config/com.drowhunter.NewStarGPTelemetryMod.cfg`
+under the `Wheel/General`, `Wheel/FFB`, and `Wheel/Input` sections.
+They are live-adjustable at runtime via the BepInEx config UI.
+
+| Key | Default | Description |
+|---|---|---|
+| `Wheel/General / Enabled` | true | Master on/off switch |
+| `Wheel/General / Backend` | Moza | Wheel backend (only Moza supported in v1) |
+| `Wheel/General / RequireX64` | true | Abort if process is not 64-bit |
+| `Wheel/FFB / OverallStrength` | 1.0 | Global FFB multiplier (0..2) |
+| `Wheel/FFB / MaxTorque` | 1.0 | Torque clamp (0..1) |
+| `Wheel/FFB / BumpThreshold` | 0.15 | Min tire delta to trigger bump |
+| `Wheel/FFB / BumpScale` | 0.35 | Bump impulse magnitude scale |
+| `Wheel/FFB / BumpCooldownMs` | 60 | Minimum ms between bumps |
+| `Wheel/FFB / CForceDampingScale` | 0.4 | cForce → damper coefficient scale |
+| `Wheel/FFB / SmoothingAlpha` | 0.25 | Exponential smoothing (0=frozen, 1=raw) |
+| `Wheel/Input / SteerDeadzone` | 0.05 | Normalised steer deadzone |
+| `Wheel/Input / SteerSaturation` | 1.0 | Normalised steer saturation |

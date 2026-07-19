@@ -30,6 +30,9 @@ namespace com.drowhunter.NewStarGPTelemetryMod
 
         private ConfigEntry<int> Port;
 
+        WheelConfig _wheelConfig;
+        WheelIntegrationRuntime _wheelRuntime;
+
         CarControl _carControl
         {
             get
@@ -78,6 +81,13 @@ namespace com.drowhunter.NewStarGPTelemetryMod
             }, new MarshalByteConverter<NewStarTelemetryData>());
 
             Logger.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
+
+            _wheelConfig = new WheelConfig(Config);
+            if (_wheelConfig.Enabled.Value)
+            {
+                _wheelRuntime = new WheelIntegrationRuntime(Logger);
+                _wheelRuntime.Initialize(_wheelConfig);
+            }
         }
 
         
@@ -182,6 +192,14 @@ namespace com.drowhunter.NewStarGPTelemetryMod
             
             _udp.Send(data);
 
+            _wheelRuntime?.Update(in data);
+
+        }
+
+        private void OnDestroy()
+        {
+            _wheelRuntime?.Dispose();
+            _wheelRuntime = null;
         }
     }
 
