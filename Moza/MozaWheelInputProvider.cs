@@ -82,9 +82,10 @@ namespace com.drowhunter.NewStarGPTelemetryMod
         private static float ApplyDeadzoneSaturation(float value, float deadzone, float saturation)
         {
             float absVal = Math.Abs(value);
-            int sign = value < 0 ? -1 : 1;
 
             if (absVal < deadzone) return 0f;
+
+            float sign = value < 0f ? -1f : 1f;
 
             // Rescale from [deadzone..saturation] to [0..1]
             float range = saturation - deadzone;

@@ -78,7 +78,12 @@ namespace com.drowhunter.NewStarGPTelemetryMod
         // ── Helpers ──────────────────────────────────────────────────────────
 
         private static short NormToShort(float value)
-            => (short)Math.Max(short.MinValue, Math.Min(short.MaxValue, (int)(value * short.MaxValue)));
+        {
+            float clamped = value < -1f ? -1f : value > 1f ? 1f : value;
+            // Map -1..0 → -32768..0, 0..1 → 0..32767 to use the full short range.
+            float scaled = clamped < 0f ? clamped * 32768f : clamped * 32767f;
+            return (short)scaled;
+        }
 
         private static byte NormToByte(float value)
             => (byte)Math.Max(0, Math.Min(255, (int)(value * 255f)));
