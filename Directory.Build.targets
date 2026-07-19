@@ -1,7 +1,8 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 	<PropertyGroup>
 		<!--<GameDir>$(APPDATA)\raicuparta\rai-pal\data\installed-mods\8148729079362356270\bepinex\BepInEx\plugins\</GameDir>-->
-		<GameDir>Y:\SteamLibrary\steamapps\common\New Star GP\release\BepInEx\plugins\</GameDir>		
+		<!--<GameDir>Y:\SteamLibrary\steamapps\common\New Star GP\release\BepInEx\plugins\</GameDir>-->
+		<GameDir>C:\Program Files (x86)\Steam\steamapps\common\New Star GP\release\BepInEx\plugins\</GameDir>
 	</PropertyGroup>
 
 	<Target Name="CreateAndCopyToGameDir" AfterTargets="Build" Condition="Exists('$(GameDir)')">
@@ -9,18 +10,32 @@
 			<GamePluginDir>$(GameDir)$(TargetName)</GamePluginDir>
 		</PropertyGroup>
 
+		<PropertyGroup>
+			<MozaNativeDir>$(MSBuildThisFileDirectory)libs\moza\x64\</MozaNativeDir>
+		</PropertyGroup>
+
 		<ItemGroup>
+			<!-- Managed assemblies → plugin dir -->
 			<FilesToCopy Include="$(TargetPath)" />
 			<FilesToCopy Include="$(TargetDir)TelemetryLib.dll" Condition="Exists('$(TargetDir)TelemetryLib.dll')" />
+			<FilesToCopy Include="$(TargetDir)MOZA_API_CSharp.dll" Condition="Exists('$(TargetDir)MOZA_API_CSharp.dll')" />
+			<FilesToCopy Include="$(TargetDir)Nefarius.ViGEm.Client.dll" Condition="Exists('$(TargetDir)Nefarius.ViGEm.Client.dll')" />
+			<!-- PDBs (Debug only) -->
 			<FilesToCopy Include="$(TargetDir)$(TargetName).pdb" Condition="'$(Configuration)' == 'Debug' and Exists('$(TargetDir)$(TargetName).pdb')" />
 			<FilesToCopy Include="$(TargetDir)TelemetryLib.pdb" Condition="'$(Configuration)' == 'Debug' and Exists('$(TargetDir)TelemetryLib.pdb')" />
 			<PdbFilesToDelete Include="$(GamePluginDir)\*.pdb" Condition="'$(Configuration)' == 'Release'" />
+			<!-- Moza native x64 DLLs → plugin dir\x64\ -->
+			<MozaNativeToCopy Include="$(MozaNativeDir)MOZA_SDK.dll" Condition="Exists('$(MozaNativeDir)MOZA_SDK.dll')" />
+			<MozaNativeToCopy Include="$(MozaNativeDir)MOZA_API_C.dll" Condition="Exists('$(MozaNativeDir)MOZA_API_C.dll')" />
 		</ItemGroup>
 
 		<MakeDir Directories="$(GamePluginDir)" Condition="!Exists('$(GamePluginDir)')" />
+		<MakeDir Directories="$(GamePluginDir)\x64" Condition="@(MozaNativeToCopy->Count()) &gt; 0 and !Exists('$(GamePluginDir)\x64')" />
 		<Delete Files="@(PdbFilesToDelete)" Condition="'$(Configuration)' == 'Release'" />
 		<Copy SourceFiles="@(FilesToCopy)" DestinationFolder="$(GamePluginDir)" />
-		<Message Text="[$(ProjectName)] Copied @(FilesToCopy, ', ') to $(GamePluginDir)" Importance="High" />
+		<Copy SourceFiles="@(MozaNativeToCopy)" DestinationFolder="$(GamePluginDir)\x64" />
+		<Message Text="[$(ProjectName)] Copied managed → $(GamePluginDir)" Importance="High" />
+		<Message Text="[$(ProjectName)] Copied native  → $(GamePluginDir)\x64" Importance="High" Condition="@(MozaNativeToCopy->Count()) &gt; 0" />
 	</Target>
 	<Target Name="WarnGameDirNotFound" AfterTargets="Build" Condition="!Exists('$(GameDir)')">
       <Message Text="[$(ProjectName)] GameDir not found. Looked for: $(GameDir)" Importance="High" />

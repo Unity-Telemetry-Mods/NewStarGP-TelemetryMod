@@ -2,8 +2,10 @@
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using com.drowhunter.TelemetryLib;
+using System.IO;
 using System.Linq;
 using System.Net;
+using System.Runtime.InteropServices;
 
 using TelemetryLib;
 
@@ -48,6 +50,9 @@ namespace com.drowhunter.NewStarGPTelemetryMod
 
         static bool paused = false;
 
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        private static extern bool SetDllDirectory(string lpPathName);
+
 
         //[HarmonyPatch(typeof(PauseMenu), nameof(PauseMenu.Update))]
         //class Patch
@@ -56,7 +61,7 @@ namespace com.drowhunter.NewStarGPTelemetryMod
         //    {
         //        paused = __instance.paused;
 
-                
+
 
         //    }
         //}
@@ -71,6 +76,21 @@ namespace com.drowhunter.NewStarGPTelemetryMod
 
             // Plugin startup logic
             Logger = base.Logger;
+
+            // Point the Windows loader at the x64 subfolder so it can find the
+            // Moza native DLLs (MOZA_SDK.dll, MOZA_API_C.dll) when
+            // MOZA_API_CSharp.dll fires its first P/Invoke.
+            // Managed DLLs are handled by BepInEx's AssemblyResolve hook instead.
+            var nativeDir = Path.Combine(Path.GetDirectoryName(Info.Location), "x64");
+            if (Directory.Exists(nativeDir))
+            {
+                SetDllDirectory(nativeDir);
+                Logger.LogInfo($"[MozaNative] DLL search path set to: {nativeDir}");
+            }
+            else
+            {
+                Logger.LogWarning($"[MozaNative] x64 native dir not found at: {nativeDir}");
+            }
 
 
             //Port = Config.Bind("Telemetry", "UDP Port", 12345, "Port to Send Telemetry");
