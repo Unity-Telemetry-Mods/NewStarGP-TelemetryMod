@@ -57,10 +57,33 @@
       <HintPath>libs\vigem\Nefarius.ViGEm.Client.dll</HintPath>
     </Reference>
   </ItemGroup>
-  
-  
- 
-  
-  
+
+  <!-- Copy native MOZA DLLs (both x86 and x64) to output directories -->
+  <!-- The NativeDllLoader will auto-detect process architecture and load the correct ones -->
+  <ItemGroup>
+    <!-- x64 DLLs -->
+    <None Include="libs\moza\x64\MOZA_SDK.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>x64\MOZA_SDK.dll</Link>
+    </None>
+    <None Include="libs\moza\x64\MOZA_API_C.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>x64\MOZA_API_C.dll</Link>
+    </None>
+
+    <!-- x86 DLLs -->
+    <None Include="libs\moza\x86\MOZA_SDK.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>x86\MOZA_SDK.dll</Link>
+    </None>
+    <None Include="libs\moza\x86\MOZA_API_C.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>x86\MOZA_API_C.dll</Link>
+    </None>
+  </ItemGroup>
+
+
+
+
   <Import Project="..\SharedLib\SharedLib.projitems" Label="Shared" />
 </Project>

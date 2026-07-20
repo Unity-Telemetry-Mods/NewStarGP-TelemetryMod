@@ -2,9 +2,11 @@
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using com.drowhunter.TelemetryLib;
+using System;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Runtime.InteropServices;
 
 using TelemetryLib;
@@ -50,9 +52,6 @@ namespace com.drowhunter.NewStarGPTelemetryMod
 
         static bool paused = false;
 
-        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        private static extern bool SetDllDirectory(string lpPathName);
-
 
         //[HarmonyPatch(typeof(PauseMenu), nameof(PauseMenu.Update))]
         //class Patch
@@ -69,6 +68,10 @@ namespace com.drowhunter.NewStarGPTelemetryMod
 
         private void Awake()
         {
+            // CRITICAL: Load native DLLs BEFORE any other code runs
+            // This must be the FIRST line to ensure DLLs are loaded before any reference to mozaAPI
+            NativeDllLoader.EnsureLoaded();
+
             //Harmony.CreateAndPatchAll(typeof(NewStarTelemetryPlugin));
             //var harmony = new Harmony("com.drowhunter.NewStarTelemetryPlugin");
             //harmony.PatchAll();
@@ -77,22 +80,26 @@ namespace com.drowhunter.NewStarGPTelemetryMod
             // Plugin startup logic
             Logger = base.Logger;
 
+            // Report process architecture and native DLL loading status
+            var processArch = Environment.Is64BitProcess ? "64-bit (x64)" : "32-bit (x86)";
+            Logger.LogInfo($"[MozaNative] *** PROCESS ARCHITECTURE: {processArch} ***");
 
-
-            // Point the Windows loader
-            // Moza native DLLs (MOZA_SDK.dll, MOZA_API_C.dll) when
-            // MOZA_API_CSharp.dll fires its first P/Invoke.
-            // Managed DLLs are handled by BepInEx's AssemblyResolve hook instead.
-            var nativeDir = Path.Combine(Path.GetDirectoryName(Info.Location), "x64");
-            if (Directory.Exists(nativeDir))
+            // NativeDllLoader.LoadError contains the detailed status message
+            if (NativeDllLoader.IsLoaded)
             {
-                SetDllDirectory(nativeDir);
-                Logger.LogInfo($"[MozaNative] DLL search path set to: {nativeDir}");
+                Logger.LogInfo($"[MozaNative] {NativeDllLoader.LoadError}");
             }
             else
             {
-                Logger.LogWarning($"[MozaNative] x64 native dir not found at: {nativeDir}");
+                Logger.LogError($"[MozaNative] FAILED: {NativeDllLoader.LoadError}");
             }
+
+            // Verify both architecture folders exist (for debugging)
+            var pluginDir = Path.GetDirectoryName(Info.Location);
+            var x86Dir = Path.Combine(pluginDir, "x86");
+            var x64Dir = Path.Combine(pluginDir, "x64");
+            Logger.LogInfo($"[MozaNative] x86 folder exists: {Directory.Exists(x86Dir)}");
+            Logger.LogInfo($"[MozaNative] x64 folder exists: {Directory.Exists(x64Dir)}");
 
 
             Port = Config.Bind("Telemetry", "UDP Port", 12345, "Port to send telemetry data on.");
@@ -107,11 +114,28 @@ namespace com.drowhunter.NewStarGPTelemetryMod
             Logger.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
 
             _wheelConfig = new WheelConfig(Config);
+            Logger.LogInfo($"[Startup] WheelConfig created. Enabled={_wheelConfig.Enabled.Value}");
+
             if (_wheelConfig.Enabled.Value)
             {
-                _wheelRuntime = new WheelIntegrationRuntime(Logger);
-                _wheelRuntime.Initialize(_wheelConfig);
+                try
+                {
+                    Logger.LogInfo("[Startup] Creating WheelIntegrationRuntime...");
+                    _wheelRuntime = new WheelIntegrationRuntime(Logger);
+
+                    Logger.LogInfo("[Startup] Calling Initialize...");
+                    _wheelRuntime.Initialize(_wheelConfig);
+
+                    Logger.LogInfo("[Startup] Initialize completed successfully.");
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError($"[Startup] FATAL: Wheel integration crashed during init: {ex}");
+                    _wheelRuntime = null;
+                }
             }
+
+            Logger.LogInfo("[Startup] Awake() completed.");
         }
 
         

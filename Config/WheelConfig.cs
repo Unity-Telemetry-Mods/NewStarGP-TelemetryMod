@@ -33,8 +33,8 @@ namespace com.drowhunter.NewStarGPTelemetryMod
         {
             // Wheel / General
             Enabled = config.Bind(
-                "Wheel/General", "Enabled", true,
-                "Enable wheel integration (Moza FFB + ViGEm virtual gamepad).");
+                "Wheel/General", "Enabled", false,
+                "Enable wheel integration (Moza FFB + ViGEm virtual gamepad). REQUIRES MOZA Pithouse software running!");
 
             Backend = config.Bind(
                 "Wheel/General", "Backend", "Moza",

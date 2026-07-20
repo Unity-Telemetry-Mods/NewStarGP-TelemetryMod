@@ -55,6 +55,49 @@ namespace com.drowhunter.NewStarGPTelemetryMod
         }
 
         /// <summary>
+        /// Check if any MOZA devices are connected and responding.
+        /// Must be called AFTER Install() succeeds.
+        /// </summary>
+        public bool IsDeviceConnected()
+        {
+            if (!_initialised)
+            {
+                _log.LogWarning("[MozaSdkAdapter] IsDeviceConnected called before Install()");
+                return false;
+            }
+
+            try
+            {
+                // Try to read HID data to verify device presence
+                ERRORCODE err = ERRORCODE.NORMAL;
+                var data = mozaAPI.mozaAPI.getHIDData(ref err);
+
+                if (err == ERRORCODE.NORMAL)
+                {
+                    _log.LogInfo("[MozaSdkAdapter] Device detected and responding.");
+                    return true;
+                }
+
+                // COLLECTIONCYCLEDATALOSS typically means no device connected
+                if (err == ERRORCODE.COLLECTIONCYCLEDATALOSS)
+                {
+                    _log.LogInfo("[MozaSdkAdapter] No MOZA device connected (COLLECTIONCYCLEDATALOSS).");
+                }
+                else
+                {
+                    _log.LogWarning($"[MozaSdkAdapter] Device check failed. Error: {err}");
+                }
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                _log.LogWarning($"[MozaSdkAdapter] Device detection failed: {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Poll the global HID data from all connected MOZA devices.
         /// Returns null if the SDK is not initialised or an error occurs.
         /// </summary>

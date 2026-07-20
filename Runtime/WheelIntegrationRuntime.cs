@@ -44,6 +44,7 @@ namespace com.drowhunter.NewStarGPTelemetryMod
         /// </summary>
         public void Initialize(WheelConfig cfg)
         {
+            _log.LogInfo("[WheelIntegrationRuntime] *** Initialize() called ***");
             _cfg = cfg;
 
             // ── x64 guard ────────────────────────────────────────────────────
@@ -63,6 +64,15 @@ namespace com.drowhunter.NewStarGPTelemetryMod
                 {
                     _log.LogWarning("[WheelIntegrationRuntime] MOZA SDK init failed. " +
                                    "Ensure MOZA Pithouz is running and native DLLs are present.");
+                    _disabled = true;
+                    return;
+                }
+
+                // -- Device presence check ---------------------------------------------
+                if (!_mozaSdk.IsDeviceConnected())
+                {
+                    _log.LogWarning("[WheelIntegrationRuntime] No MOZA device detected. " +
+                                   "Wheel integration disabled. Connect your wheel and restart the game.");
                     _disabled = true;
                     return;
                 }
