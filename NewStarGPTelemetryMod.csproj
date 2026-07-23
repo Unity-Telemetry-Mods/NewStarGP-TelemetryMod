@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net46</TargetFramework>
+    <TargetFramework>net48</TargetFramework>
     <AssemblyName>NewStarGPTelemetryMod</AssemblyName>
     <Product>Newstar Telemetry Plugin</Product>
-    <Version>1.0.2</Version>
+    <Version>2.0.0</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
     <RestoreAdditionalProjectSources>
@@ -31,9 +31,8 @@
   </ItemGroup>
 
   <ItemGroup>
-	  <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.2" PrivateAssets="all" />
-
-	  <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
+	<PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.2" PrivateAssets="all" />
+    <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
     <PackageReference Include="BepInEx.Core" Version="5.*" />
     <PackageReference Include="BepInEx.PluginInfoProps" Version="2.*" />
     <PackageReference Include="UnityEngine.Modules" Version="2021.3.28" IncludeAssets="compile" />
@@ -48,12 +47,43 @@
   </ItemGroup>
   
   <ItemGroup>
-	  <Reference Include="libs\Assembly-CSharp.dll" Publicize="true" />   
+	<Reference Include="Microsoft.CSharp" />
+	  <Reference Include="libs\Assembly-CSharp.dll" Publicize="true" />
+    <Reference Include="MOZA_API_CSharp">
+      <HintPath>libs\moza\x64\MOZA_API_CSharp.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="Nefarius.ViGEm.Client">
+      <HintPath>libs\vigem\Nefarius.ViGEm.Client.dll</HintPath>
+    </Reference>
   </ItemGroup>
-  
-  
- 
-  
-  
+
+  <!-- Copy native MOZA DLLs (both x86 and x64) to output directories -->
+  <!-- The NativeDllLoader will auto-detect process architecture and load the correct ones -->
+  <ItemGroup>
+    <!-- x64 DLLs -->
+    <None Include="libs\moza\x64\MOZA_SDK.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>x64\MOZA_SDK.dll</Link>
+    </None>
+    <None Include="libs\moza\x64\MOZA_API_C.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>x64\MOZA_API_C.dll</Link>
+    </None>
+
+    <!-- x86 DLLs -->
+    <None Include="libs\moza\x86\MOZA_SDK.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>x86\MOZA_SDK.dll</Link>
+    </None>
+    <None Include="libs\moza\x86\MOZA_API_C.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>x86\MOZA_API_C.dll</Link>
+    </None>
+  </ItemGroup>
+
+
+
+
   <Import Project="..\SharedLib\SharedLib.projitems" Label="Shared" />
 </Project>

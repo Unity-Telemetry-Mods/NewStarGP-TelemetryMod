@@ -2,8 +2,12 @@
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using com.drowhunter.TelemetryLib;
+using System;
+using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
+using System.Runtime.InteropServices;
 
 using TelemetryLib;
 
@@ -24,11 +28,14 @@ namespace com.drowhunter.NewStarGPTelemetryMod
 
         internal NewStarTelemetryData data;
 
-        UdpTelemetry<NewStarTelemetryData> _udp;
+        UdpTelemetry<NewStarTelemetryData> _dataOut;
 
         RacingContextManager _racingContextManager;
 
         private ConfigEntry<int> Port;
+
+        WheelConfig _wheelConfig;
+        WheelIntegrationRuntime _wheelRuntime;
 
         CarControl _carControl
         {
@@ -53,7 +60,7 @@ namespace com.drowhunter.NewStarGPTelemetryMod
         //    {
         //        paused = __instance.paused;
 
-                
+
 
         //    }
         //}
@@ -61,6 +68,10 @@ namespace com.drowhunter.NewStarGPTelemetryMod
 
         private void Awake()
         {
+            // CRITICAL: Load native DLLs BEFORE any other code runs
+            // This must be the FIRST line to ensure DLLs are loaded before any reference to mozaAPI
+            NativeDllLoader.EnsureLoaded();
+
             //Harmony.CreateAndPatchAll(typeof(NewStarTelemetryPlugin));
             //var harmony = new Harmony("com.drowhunter.NewStarTelemetryPlugin");
             //harmony.PatchAll();
@@ -69,15 +80,62 @@ namespace com.drowhunter.NewStarGPTelemetryMod
             // Plugin startup logic
             Logger = base.Logger;
 
+            // Report process architecture and native DLL loading status
+            var processArch = Environment.Is64BitProcess ? "64-bit (x64)" : "32-bit (x86)";
+            Logger.LogInfo($"[MozaNative] *** PROCESS ARCHITECTURE: {processArch} ***");
 
-            Port = Config.Bind("Telemetry", "UDP Port", 12345, "Port to Send Telemetry");
+            // NativeDllLoader.LoadError contains the detailed status message
+            if (NativeDllLoader.IsLoaded)
+            {
+                Logger.LogInfo($"[MozaNative] {NativeDllLoader.LoadError}");
+            }
+            else
+            {
+                Logger.LogError($"[MozaNative] FAILED: {NativeDllLoader.LoadError}");
+            }
 
-            _udp = new UdpTelemetry<NewStarTelemetryData>(new UdpTelemetryConfig
+            // Verify both architecture folders exist (for debugging)
+            var pluginDir = Path.GetDirectoryName(Info.Location);
+            var x86Dir = Path.Combine(pluginDir, "x86");
+            var x64Dir = Path.Combine(pluginDir, "x64");
+            Logger.LogInfo($"[MozaNative] x86 folder exists: {Directory.Exists(x86Dir)}");
+            Logger.LogInfo($"[MozaNative] x64 folder exists: {Directory.Exists(x64Dir)}");
+
+
+            Port = Config.Bind("Telemetry", "UDP Port", 12345, "Port to send telemetry data on.");
+
+            _dataOut = new UdpTelemetry<NewStarTelemetryData>(new UdpTelemetryConfig
             {
                 SendAddress = new IPEndPoint(IPAddress.Loopback, Port.Value)
             }, new MarshalByteConverter<NewStarTelemetryData>());
 
+
+
             Logger.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
+
+            _wheelConfig = new WheelConfig(Config);
+            Logger.LogInfo($"[Startup] WheelConfig created. Enabled={_wheelConfig.Enabled.Value}");
+
+            if (_wheelConfig.Enabled.Value)
+            {
+                try
+                {
+                    Logger.LogInfo("[Startup] Creating WheelIntegrationRuntime...");
+                    _wheelRuntime = new WheelIntegrationRuntime(Logger);
+
+                    Logger.LogInfo("[Startup] Calling Initialize...");
+                    _wheelRuntime.Initialize(_wheelConfig);
+
+                    Logger.LogInfo("[Startup] Initialize completed successfully.");
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError($"[Startup] FATAL: Wheel integration crashed during init: {ex}");
+                    _wheelRuntime = null;
+                }
+            }
+
+            Logger.LogInfo("[Startup] Awake() completed.");
         }
 
         
@@ -180,8 +238,16 @@ namespace com.drowhunter.NewStarGPTelemetryMod
 
             };
             
-            _udp.Send(data);
+            _dataOut.Send(data);
 
+            _wheelRuntime?.Update(in data);
+
+        }
+
+        private void OnDestroy()
+        {
+            _wheelRuntime?.Dispose();
+            _wheelRuntime = null;
         }
     }
 
